@@ -9,6 +9,7 @@ package HuffmanAlgorithm;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
 /**
@@ -20,8 +21,11 @@ public class Huffman {
     
     private int[] freqs;
     private Map<Character, String> hashes;
+    private String str;
     
     public Huffman(String str) {
+        this.str = str;
+        
         freqs = new int[256];
         
         for (char character : str.toCharArray()) {
@@ -63,67 +67,58 @@ public class Huffman {
         } 
     }
     
-    public static String decode(String code, String alf) {
-        Huffman tree = new Huffman(alf);
-        
-        tree.compress();
-        
+    public String decode(String code) {
         StringBuffer output = new StringBuffer();
-        StringBuffer input = new StringBuffer(code);
+        StringBuffer chain = new StringBuffer();
         
-        Node node = tree.getTree();
-        int index = 0;
-        
-        while (input.length() > 0 && index < input.length()) {
-            char pointer = input.charAt(index);
+        for (int i = 0; i < code.length(); ++i) {
+            chain.append(code.charAt(i));
             
-            switch (pointer) {
-                case '0':
-                    node = node.getLeft();
+            Map<Character, String> h = new HashMap(this.getHashes());
+            
+            for (Entry<Character, String> map : h.entrySet()) {
+                String c = (String)map.getValue();
+                
+                if (c.equals(chain.toString())) {
+                    output.append((Character) map.getKey());
+                    
+                    chain.delete(0, chain.length());
                     break;
-                case '1':
-                    node = node.getRigth();
-                    break;
-                default:
-                    break;
+                }
             }
-            
-            if (node.isLeaf()) {
-                output.append(node.getValue());
-                
-                System.out.println(node.getFrequency());
-                
-                input.delete(0, index);
-                
-                index = 0;
-                
-                node = tree.getTree();
-            }
-            
-            ++index;
         }
+        
+        
         
         return output.toString();
     }
     
     public Map<Character, String> getHashes() {
-        return this.hashes;
+        return new HashMap(this.hashes);
     }
     
     public String getCode() {
-        StringBuffer str = new StringBuffer();
+        StringBuffer output = new StringBuffer();
+        StringBuffer chain = new StringBuffer();
         
-        Map<Character, String> hash = new HashMap(hashes);
-        
-        Iterator it = hash.entrySet().iterator();
-        
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            str.append(pairs.getValue());
-            it.remove(); 
+        for (int i = 0; i < this.str.length(); ++i) {
+            chain.append(str.charAt(i));
+            
+            Map<Character, String> h = new HashMap(this.getHashes());
+            
+            for (Entry<Character, String> map : h.entrySet()) {
+                Character c = (Character)map.getKey();
+                
+                if (c.charValue() == str.charAt(i)) {
+                    output.append((String) map.getValue());
+                    
+                    chain.delete(0, chain.length());
+                    break;
+                }
+            }
         }
         
-        return str.toString();
+        return output.toString();
     }
     
     private void huffman(Node node, StringBuffer buff) {

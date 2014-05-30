@@ -31,6 +31,7 @@ public class MainWindow extends javax.swing.JFrame {
     private final String[] cols = {"Caracter", "ASCII", "Codigo"};
 
     private DefaultTableModel model;
+    private Huffman huffman;
 
     /**
      * Creates new form MainWindow
@@ -193,9 +194,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void compileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compileButtonActionPerformed
-        // TODO add your handling code here:
-        Huffman huffman = null;
-
+        // TODO add your handling code here
         if (!isFileField.isSelected()) {
             huffman = new Huffman(input_field.getText());
         } else {
@@ -280,8 +279,13 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        output_field.setText(Huffman.decode(input_field.getText(),
-                JOptionPane.showInputDialog("Σ De la gramatica:")));
+        String ret = huffman.decode(input_field.getText());
+        
+        if (ret.equals("")) {
+            JOptionPane.showMessageDialog(this, "Codigo no valido");
+        } 
+        
+        output_field.setText(ret);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
