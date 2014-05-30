@@ -66,6 +66,7 @@ public class MainWindow extends javax.swing.JFrame {
         input_field = new javax.swing.JTextArea();
         isFileField = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
+        charset = new javax.swing.JComboBox();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         output_field = new javax.swing.JTextArea();
@@ -109,6 +110,13 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        charset.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "ASCII", "UNICODE" }));
+        charset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                charsetActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -121,7 +129,9 @@ public class MainWindow extends javax.swing.JFrame {
                         .addComponent(fileField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(isFileField)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 108, Short.MAX_VALUE)
+                        .addComponent(charset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(compileButton)))
@@ -135,7 +145,8 @@ public class MainWindow extends javax.swing.JFrame {
                     .addComponent(fileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(compileButton)
                     .addComponent(isFileField)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(charset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)
                 .addContainerGap())
@@ -196,7 +207,26 @@ public class MainWindow extends javax.swing.JFrame {
     private void compileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compileButtonActionPerformed
         // TODO add your handling code here
         if (!isFileField.isSelected()) {
-            huffman = new Huffman(input_field.getText());
+            try {
+                switch (charset.getSelectedIndex()) {
+                case 0:
+                    //ASCII
+                    huffman = new Huffman(input_field.getText(), Huffman.ASCII);
+                    break;
+                case 1:
+                case 2:
+                    //UNICODE
+                    huffman = new Huffman(input_field.getText(), Huffman.UNICODE);
+                    break;
+                default:
+                    break;
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "La codificacion (charset)"
+                        + " no es valida para los caracteres ingresados.");
+            }
+            
+            
         } else {
             JDialog dialog = new JDialog((JDialog) null, "Leyendo archivo...");
 
@@ -238,9 +268,7 @@ public class MainWindow extends javax.swing.JFrame {
 
                 huffman = new Huffman(buffer.toString());
 
-            } catch (FileNotFoundException ex) {
-                JOptionPane.showMessageDialog(this, ex.getLocalizedMessage());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getLocalizedMessage());
             }
         }
@@ -288,6 +316,10 @@ public class MainWindow extends javax.swing.JFrame {
         output_field.setText(ret);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void charsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_charsetActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_charsetActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -302,6 +334,7 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox charset;
     private javax.swing.JButton compileButton;
     private javax.swing.JTextField fileField;
     private javax.swing.JTextArea input_field;

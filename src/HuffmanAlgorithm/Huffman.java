@@ -17,24 +17,36 @@ import java.util.PriorityQueue;
  * @author molayab
  */
 public class Huffman {
+    public static final int ASCII = 256;
+    public static final int UNICODE = 65536;
+    
     protected Node root;
     
     private int[] freqs;
     private Map<Character, String> hashes;
     private String str;
     
-    public Huffman(String str) {
+    public Huffman(String str, int charset) throws Exception {
         this.str = str;
         
-        freqs = new int[256];
+        freqs = new int[charset];
         
-        for (char character : str.toCharArray()) {
-            freqs[character]++;
+        try {
+            for (char character : str.toCharArray()) {
+                freqs[character]++;
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new Exception("Incopatible charset.");
         }
+        
         
         this.root = build();
         
         hashes = new HashMap();
+    }
+    
+    public Huffman(String str) throws Exception {
+        this(str, ASCII);
     }
     
     private Node build() {
@@ -62,6 +74,11 @@ public class Huffman {
     public void compress() {
         StringBuffer buffer = new StringBuffer();
         
+        if (root.isLeaf()) {
+            hashes.put(new Character(root.getValue()), "1");
+            return;
+        }
+        
         if (this.root != null) {
             huffman(this.root, buffer);
         } 
@@ -80,15 +97,13 @@ public class Huffman {
                 String c = (String)map.getValue();
                 
                 if (c.equals(chain.toString())) {
-                    output.append((Character) map.getKey());
+                    output.append((Character)map.getKey());
                     
                     chain.delete(0, chain.length());
                     break;
                 }
             }
         }
-        
-        
         
         return output.toString();
     }
