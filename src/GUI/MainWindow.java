@@ -3,13 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package GUI;
 
 import HuffmanAlgorithm.Huffman;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -17,19 +27,21 @@ import javax.swing.table.DefaultTableModel;
  * @author molayab
  */
 public class MainWindow extends javax.swing.JFrame {
+
     private final String[] cols = {"Caracter", "ASCII", "Codigo"};
-    
+
     private DefaultTableModel model;
+
     /**
      * Creates new form MainWindow
      */
     public MainWindow() {
         model = new DefaultTableModel();
-        
+
         for (String col : cols) {
             model.addColumn(col);
         }
-        
+
         initComponents();
     }
 
@@ -47,11 +59,11 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        fileField = new javax.swing.JTextField();
         compileButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         input_field = new javax.swing.JTextArea();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        isFileField = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -73,7 +85,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Entrada"));
 
-        jTextField1.setText("Sin archivo...");
+        fileField.setText("Sin archivo...");
 
         compileButton.setText("Cargar");
         compileButton.addActionListener(new java.awt.event.ActionListener() {
@@ -87,7 +99,7 @@ public class MainWindow extends javax.swing.JFrame {
         input_field.setText("Hola mundo .... esto es una prueba de huffman... :)");
         jScrollPane2.setViewportView(input_field);
 
-        jCheckBox1.setText("Usar archivo");
+        isFileField.setText("Usar archivo");
 
         jButton1.setText("Decodificar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -105,9 +117,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fileField, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jCheckBox1)
+                        .addComponent(isFileField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -119,9 +131,9 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(compileButton)
-                    .addComponent(jCheckBox1)
+                    .addComponent(isFileField)
                     .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)
@@ -182,43 +194,93 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void compileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compileButtonActionPerformed
         // TODO add your handling code here:
+        Huffman huffman = null;
+
+        if (!isFileField.isSelected()) {
+            huffman = new Huffman(input_field.getText());
+        } else {
+            JDialog dialog = new JDialog((JDialog) null, "Leyendo archivo...");
+
+            JProgressBar progress = new JProgressBar(0, 100);
+            progress.setPreferredSize(new Dimension(175, 20));
+            progress.setString("Leyendo...");
+            progress.setStringPainted(true);
+            progress.setValue(0);
+
+            JPanel center = new JPanel();
+            center.add(progress);
+
+            dialog.getContentPane().add(center, BorderLayout.CENTER);
+            dialog.pack();
+            dialog.setVisible(true);
+
+            dialog.setLocationRelativeTo(null);
+            dialog.setLocation(550, 25);
+            dialog.toFront();
+
+            File file = new File(fileField.getText());
+
+            try {
+                FileInputStream fis = new FileInputStream(file);
+                StringBuffer buffer = new StringBuffer();
+
+                int chunk;
+                long size = file.length();
+
+                while ((chunk = fis.read()) != -1) {
+                    buffer.append((char) chunk);
+
+                    progress.setValue((int) (((double) chunk / (double) size) * 100));
+                }
+
+                dialog.dispose();
+
+                input_field.setText(buffer.toString());
+
+                huffman = new Huffman(buffer.toString());
+
+            } catch (FileNotFoundException ex) {
+                JOptionPane.showMessageDialog(this, ex.getLocalizedMessage());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, ex.getLocalizedMessage());
+            }
+        }
+
         if (model.getRowCount() > 0) {
             for (int i = model.getRowCount() - 1; i > -1; i--) {
                 model.removeRow(i);
             }
         }
-        
-        Huffman huffman = new Huffman(input_field.getText());
-        
-        huffman.compress();
-       
-        output_field.setText(huffman.getCode());
-        
-        Map<Character, String> data = huffman.getHashes();
-        
-        Iterator it = data.entrySet().iterator();
-        
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            
-            Character charStr = (Character)pairs.getKey();
-            
-            String[] value = {charStr.toString(), 
-                "0x" + Integer.toHexString((int)charStr.charValue()), 
-                (String)pairs.getValue()};
-            
-            model.addRow(value);
-            it.remove();
-            
-            System.out.println("OK --> " + pairs.getKey());
+
+        if (huffman != null) {
+            huffman.compress();
+
+            output_field.setText(huffman.getCode());
+
+            Map<Character, String> data = huffman.getHashes();
+
+            Iterator it = data.entrySet().iterator();
+
+            while (it.hasNext()) {
+                Map.Entry pairs = (Map.Entry) it.next();
+
+                Character charStr = (Character) pairs.getKey();
+
+                String[] value = {charStr.toString(),
+                    "0x" + Integer.toHexString((int) charStr.charValue()),
+                    (String) pairs.getValue()};
+
+                model.addRow(value);
+                it.remove();
+            }
+
+            model.fireTableDataChanged();
         }
-        
-        model.fireTableDataChanged();
     }//GEN-LAST:event_compileButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        output_field.setText(Huffman.decode(input_field.getText(), 
+        output_field.setText(Huffman.decode(input_field.getText(),
                 JOptionPane.showInputDialog("Σ De la gramatica:")));
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -227,19 +289,20 @@ public class MainWindow extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Create and display the form */
-        
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-               new MainWindow().setVisible(true);
+                new MainWindow().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton compileButton;
+    private javax.swing.JTextField fileField;
     private javax.swing.JTextArea input_field;
+    private javax.swing.JCheckBox isFileField;
     private javax.swing.JButton jButton1;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -251,7 +314,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextArea output_field;
     // End of variables declaration//GEN-END:variables
 }

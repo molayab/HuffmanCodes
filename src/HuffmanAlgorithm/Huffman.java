@@ -68,39 +68,39 @@ public class Huffman {
         
         tree.compress();
         
-        
         StringBuffer output = new StringBuffer();
         StringBuffer input = new StringBuffer(code);
         
-        Node root = tree.getTree();
+        Node node = tree.getTree();
+        int index = 0;
         
-        for (int i = 0; i < input.length(); ++i) {
-            if (input.charAt(i) == '0') {
-                if (root.isLeaf()) {
-                    output.append(root.getValue());
-              
-                    input.delete(0, i);
-                    root = tree.getTree();
-                    i = 0;
-                } else {
-                    root = root.getLeft();
-                    continue;
-                }
-                
-            } else if (input.charAt(i) == '1') {
-                if (root.isLeaf()) {
-                    output.append(root.getValue());
-              
-                    input.delete(0, i);
-                    root = tree.getTree();
-                    
-                    i = 0;
-                } else {
-                    root = root.getRigth();
-                    continue;
-                }
-                
+        while (input.length() > 0 && index < input.length()) {
+            char pointer = input.charAt(index);
+            
+            switch (pointer) {
+                case '0':
+                    node = node.getLeft();
+                    break;
+                case '1':
+                    node = node.getRigth();
+                    break;
+                default:
+                    break;
             }
+            
+            if (node.isLeaf()) {
+                output.append(node.getValue());
+                
+                System.out.println(node.getFrequency());
+                
+                input.delete(0, index);
+                
+                index = 0;
+                
+                node = tree.getTree();
+            }
+            
+            ++index;
         }
         
         return output.toString();
